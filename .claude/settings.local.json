@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(vendor/bin/phpstan analyse:*)",
+      "Bash(make:*)",
+      "Bash(vendor/bin/tester:*)",
+      "Bash(vendor/bin/phpcs:*)"
+    ]
+  }
+}
