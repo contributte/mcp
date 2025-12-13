@@ -75,7 +75,6 @@ final class ServerInspector
 	public static function getProtocol(Server $server): Protocol
 	{
 		$prop = new ReflectionProperty($server, 'protocol');
-		$prop->setAccessible(true);
 
 		return $prop->getValue($server);
 	}
@@ -93,7 +92,6 @@ final class ServerInspector
 	public static function getHandler(Protocol $protocol, string $handlerClass): ?RequestHandlerInterface
 	{
 		$prop = new ReflectionProperty($protocol, 'requestHandlers');
-		$prop->setAccessible(true);
 		$handlers = $prop->getValue($protocol);
 
 		foreach ($handlers as $handler) {
@@ -118,7 +116,6 @@ final class ServerInspector
 		}
 
 		$prop = new ReflectionProperty($handler, 'registry');
-		$prop->setAccessible(true);
 
 		return $prop->getValue($handler);
 	}
