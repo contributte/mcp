@@ -70,7 +70,7 @@ Toolkit::test(function (): void {
 			));
 			$compiler->addConfig([
 				'parameters' => [
-					'testsDir' => __DIR__ . '/../../',
+					'testsDir' => dirname(__DIR__, 2),
 				],
 			]);
 		})->build();
