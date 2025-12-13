@@ -4,7 +4,8 @@
       "Bash(vendor/bin/phpstan analyse:*)",
       "Bash(make:*)",
       "Bash(vendor/bin/tester:*)",
-      "Bash(vendor/bin/phpcs:*)"
+      "Bash(vendor/bin/phpcs:*)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }
