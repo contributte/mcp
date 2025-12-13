@@ -49,6 +49,9 @@
       "Tests\\": "tests"
     }
   },
+  "conflict": {
+    "nette/neon": "<3.4.5"
+  },
   "minimum-stability": "dev",
   "prefer-stable": true,
   "config": {
