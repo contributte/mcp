@@ -1,0 +1,216 @@
+<?php declare(strict_types = 1);
+
+/**
+ * @var \Contributte\Mcp\Registry\TraceableRegistry $registry
+ * @var string $serverName
+ * @var \Mcp\Schema\Page $tools
+ * @var \Mcp\Schema\Page $resources
+ * @var \Mcp\Schema\Page $resourceTemplates
+ * @var \Mcp\Schema\Page $prompts
+ */
+
+$formatHandler = static function (mixed $handler): string {
+	if (is_array($handler) && count($handler) === 2) {
+		$class = is_object($handler[0]) ? get_class($handler[0]) : (string) $handler[0];
+
+		return $class . '::' . $handler[1] . '()';
+	}
+
+	if (is_string($handler)) {
+		return $handler;
+	}
+
+	return '';
+};
+
+?>
+<style class="tracy-debug">
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> .tracy-inner {
+		min-width: 500px;
+	}
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> table {
+		width: 100%;
+		border-collapse: collapse;
+	}
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> th,
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> td {
+		padding: 4px 8px;
+		text-align: left;
+		border: 1px solid #e0e0e0;
+	}
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> th {
+		background: #f5f5f5;
+		font-weight: bold;
+	}
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> .mcp-name {
+		font-family: monospace;
+		font-weight: bold;
+	}
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> .mcp-section {
+		margin-bottom: 15px;
+	}
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> .mcp-section h3 {
+		margin: 0 0 8px 0;
+		padding: 5px 8px;
+		background: #6366f1;
+		color: white;
+		font-size: 12px;
+		font-weight: bold;
+	}
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> .mcp-stats {
+		display: flex;
+		gap: 20px;
+		margin-bottom: 15px;
+		padding: 8px;
+		background: #f8f9fa;
+		border-radius: 4px;
+	}
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> .mcp-stat {
+		text-align: center;
+	}
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> .mcp-stat-value {
+		font-size: 18px;
+		font-weight: bold;
+		color: #6366f1;
+	}
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> .mcp-stat-label {
+		font-size: 11px;
+		color: #666;
+	}
+	#tracy-debug-panel-contributte-mcp-<?= htmlspecialchars($serverName, ENT_QUOTES) ?> .mcp-empty {
+		color: #999;
+		font-style: italic;
+		padding: 8px;
+	}
+</style>
+
+<h1>MCP: <?= htmlspecialchars($serverName, ENT_QUOTES) ?></h1>
+
+<div class="tracy-inner">
+	<div class="mcp-stats">
+		<div class="mcp-stat">
+			<div class="mcp-stat-value"><?= count($tools) ?></div>
+			<div class="mcp-stat-label">Tools</div>
+		</div>
+		<div class="mcp-stat">
+			<div class="mcp-stat-value"><?= count($resources) ?></div>
+			<div class="mcp-stat-label">Resources</div>
+		</div>
+		<div class="mcp-stat">
+			<div class="mcp-stat-value"><?= count($resourceTemplates) ?></div>
+			<div class="mcp-stat-label">Resource Templates</div>
+		</div>
+		<div class="mcp-stat">
+			<div class="mcp-stat-value"><?= count($prompts) ?></div>
+			<div class="mcp-stat-label">Prompts</div>
+		</div>
+	</div>
+
+	<div class="mcp-section">
+		<h3>Tools</h3>
+<?php if (count($tools) === 0): ?>
+		<div class="mcp-empty">No tools registered.</div>
+<?php else: ?>
+		<table>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Handler</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+<?php foreach ($tools->references as $tool): ?>
+				<tr>
+					<td class="mcp-name"><?= htmlspecialchars($tool->name, ENT_QUOTES) ?></td>
+					<td><code><?= htmlspecialchars($formatHandler($registry->getTool($tool->name)->handler), ENT_QUOTES) ?></code></td>
+					<td><?= htmlspecialchars($tool->description ?? '', ENT_QUOTES) ?></td>
+				</tr>
+<?php endforeach; ?>
+			</tbody>
+		</table>
+<?php endif; ?>
+	</div>
+
+	<div class="mcp-section">
+		<h3>Resources</h3>
+<?php if (count($resources) === 0): ?>
+		<div class="mcp-empty">No resources registered.</div>
+<?php else: ?>
+		<table>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Handler</th>
+					<th>URI</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+<?php foreach ($resources->references as $resource): ?>
+				<tr>
+					<td class="mcp-name"><?= htmlspecialchars($resource->name, ENT_QUOTES) ?></td>
+					<td><code><?= htmlspecialchars($formatHandler($registry->getResource($resource->uri)->handler), ENT_QUOTES) ?></code></td>
+					<td><code><?= htmlspecialchars($resource->uri, ENT_QUOTES) ?></code></td>
+					<td><?= htmlspecialchars($resource->description ?? '', ENT_QUOTES) ?></td>
+				</tr>
+<?php endforeach; ?>
+			</tbody>
+		</table>
+<?php endif; ?>
+	</div>
+
+	<div class="mcp-section">
+		<h3>Resource Templates</h3>
+<?php if (count($resourceTemplates) === 0): ?>
+		<div class="mcp-empty">No resource templates registered.</div>
+<?php else: ?>
+		<table>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Handler</th>
+					<th>URI Template</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+<?php foreach ($resourceTemplates->references as $template): ?>
+				<tr>
+					<td class="mcp-name"><?= htmlspecialchars($template->name, ENT_QUOTES) ?></td>
+					<td><code><?= htmlspecialchars($formatHandler($registry->getResourceTemplate($template->uriTemplate)->handler), ENT_QUOTES) ?></code></td>
+					<td><code><?= htmlspecialchars($template->uriTemplate, ENT_QUOTES) ?></code></td>
+					<td><?= htmlspecialchars($template->description ?? '', ENT_QUOTES) ?></td>
+				</tr>
+<?php endforeach; ?>
+			</tbody>
+		</table>
+<?php endif; ?>
+	</div>
+
+	<div class="mcp-section">
+		<h3>Prompts</h3>
+<?php if (count($prompts) === 0): ?>
+		<div class="mcp-empty">No prompts registered.</div>
+<?php else: ?>
+		<table>
+			<thead>
+				<tr>
+					<th>Name</th>
+					<th>Handler</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			<tbody>
+<?php foreach ($prompts->references as $prompt): ?>
+				<tr>
+					<td class="mcp-name"><?= htmlspecialchars($prompt->name, ENT_QUOTES) ?></td>
+					<td><code><?= htmlspecialchars($formatHandler($registry->getPrompt($prompt->name)->handler), ENT_QUOTES) ?></code></td>
+					<td><?= htmlspecialchars($prompt->description ?? '', ENT_QUOTES) ?></td>
+				</tr>
+<?php endforeach; ?>
+			</tbody>
+		</table>
+<?php endif; ?>
+	</div>
+</div>

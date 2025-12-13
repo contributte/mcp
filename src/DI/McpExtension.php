@@ -9,8 +9,11 @@ use Contributte\Mcp\Exception\LogicalException;
 use Contributte\Mcp\Http\StdioTransportFactory;
 use Contributte\Mcp\Http\StreamableTransportFactory;
 use Contributte\Mcp\McpManager;
+use Contributte\Mcp\Registry\TraceableRegistry;
 use Contributte\Mcp\Server\ServerFactory;
+use Contributte\Mcp\Tracy\McpPanel;
 use GuzzleHttp\Psr7\HttpFactory;
+use Mcp\Capability\Registry;
 use Mcp\Server\Builder;
 use Mcp\Server\Session\FileSessionStore;
 use Mcp\Server\Session\InMemorySessionStore;
@@ -45,6 +48,9 @@ class McpExtension extends CompilerExtension
 		);
 
 		return Expect::structure([
+			'debug' => Expect::structure([
+				'panel' => Expect::bool(false),
+			]),
 			'servers' => Expect::arrayOf(
 				Expect::structure([
 					'name' => Expect::string()->default('MCP'),
@@ -202,11 +208,33 @@ class McpExtension extends CompilerExtension
 			$builderDef->addSetup('setSession', [$sessionStore]);
 		}
 
+		// Server:Registry
+		$registryDef = $builder->addDefinition($this->prefix('server.' . $serverName . '.registry'))
+			->setFactory(Registry::class)
+			->setAutowired(false);
+
+		$traceableRegistryDef = $builder->addDefinition($this->prefix('server.' . $serverName . '.traceableRegistry'))
+			->setFactory(TraceableRegistry::class, [$registryDef])
+			->setAutowired(false);
+
+		$builderDef->addSetup('setRegistry', [$traceableRegistryDef]);
+
 		// ServerFactory
 		$builder->addDefinition($this->prefix('server.' . $serverName . '.factory'))
 			->setFactory(ServerFactory::class, [$builderDef])
 			->addTag(self::SERVER_FACTORY_TAG, $serverName)
 			->setAutowired($serverName === 'default');
+
+		// Debug: Tracy Panel
+		if ($this->config->debug->panel) {
+			$this->initialization->addBody(
+				McpPanel::class . '::initialize($this->getService(?), ?);',
+				[
+					$this->prefix('server.' . $serverName . '.traceableRegistry'),
+					$serverName,
+				]
+			);
+		}
 	}
 
 }

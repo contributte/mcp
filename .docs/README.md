@@ -12,11 +12,12 @@ Integration of [Model Context Protocol (MCP)](https://modelcontextprotocol.io) f
   - [Discovery](#discovery)
   - [Session management](#session-management)
   - [Container integration](#container-integration)
+  - [Transport factories](#transport-factories)
+  - [Custom transport factories](#custom-transport-factories)
 - [Tools, Resources, and Prompts](#tools-resources-and-prompts)
 - [Usage](#usage)
   - [Basic usage](#basic-usage)
-  - [Transport factories](#transport-factories)
-  - [Custom transport factories](#custom-transport-factories)
+- [Debugging](#debugging)
 - [Examples](#examples)
 
 ## Installation
@@ -201,6 +202,56 @@ mcp:
       container: @myContainerService
 ```
 
+### Transport factories
+
+The extension registers two transport factories by default:
+
+1. **`stdio`** - STDIN/STDOUT transport for command-line usage
+2. **`streamable`** - HTTP streamable transport for web requests
+
+```php
+// Get stdio transport factory
+$stdioFactory = $mcpManager->getTransportFactory('stdio');
+
+// Get streamable transport factory
+$streamableFactory = $mcpManager->getTransportFactory('streamable');
+```
+
+### Custom transport factories
+
+You can create custom transport factories by implementing `TransportFactoryInterface`:
+
+```php
+<?php declare(strict_types=1);
+
+namespace App\Mcp;
+
+use Contributte\Mcp\Http\TransportFactoryInterface;
+use Mcp\Server\Transport\TransportInterface;
+
+final class CustomTransportFactory implements TransportFactoryInterface
+{
+
+    public function create(mixed ...$args): TransportInterface
+    {
+        return new MyCustomTransport();
+    }
+
+}
+```
+
+Register it in your configuration:
+
+```neon
+services:
+  mcp.transport.custom.factory:
+    factory: App\Mcp\CustomTransportFactory
+    tags: [contributte.mcp.transport_factory: custom]
+
+# Now you can use it
+# $factory = $mcpManager->getTransportFactory('custom');
+```
+
 ## Tools, Resources, and Prompts
 
 MCP capabilities (tools, resources, prompts) are **automatically discovered** using PHP attributes. There is no manual configuration needed - just create classes with the appropriate attributes and they will be registered automatically.
@@ -369,49 +420,44 @@ After configuration, you can use the MCP server in your application:
 
 namespace App\Presenters;
 
+use Contributte\Mcp\Http\GuzzleBridge;
 use Contributte\Mcp\McpManager;
-use Nette\Application\UI\Presenter;
+use Nette\Application\IPresenter;
+use Nette\Application\Request as AppRequest;
+use Nette\Application\Response;
+use Nette\Http\IRequest;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
-final class McpPresenter extends Presenter
+class McpPresenter implements IPresenter
 {
+
     public function __construct(
-        private readonly McpManager $mcpManager
-    ) {
-        parent::__construct();
+        protected IRequest $httpRequest,
+        protected McpManager $mcpManager,
+    )
+    {
     }
 
-    public function actionDefault(): ResponseInterface
+    public function run(AppRequest $appRequest): Response
     {
+        // Get server name from route parameters
+        $serverName = $appRequest->getParameter('server');
+        $serverName = is_string($serverName) ? $serverName : 'default';
+
         // Convert Nette request to PSR-7 request
-        $serverRequest = $this->createPsr7Request($this->getHttpRequest());
+        $serverRequest = GuzzleBridge::fromNette($this->httpRequest);
 
         // Create server and transport
-        $server = $this->mcpManager->getServerFactory('default')->create();
+        $server = $this->mcpManager->getServerFactory($serverName)->create();
         $transport = $this->mcpManager->getTransportFactory('streamable')->create($serverRequest);
 
-        // Run server and return response
-        $response = $server->run($transport);
+        // Run server
+        $psr7Response = $server->run($transport);
+        assert($psr7Response instanceof ResponseInterface);
 
-        // Convert PSR-7 response to Nette response and send it
-        $this->sendPsr7Response($response);
-
-        return $response;
+        return GuzzleBridge::toNette($psr7Response);
     }
 
-    private function createPsr7Request(\Nette\Http\IRequest $request): ServerRequestInterface
-    {
-        // Use your preferred PSR-7 implementation to convert Nette request
-        // Example: return GuzzleHttp\Psr7\ServerRequest::fromGlobals();
-        // or use a bridge library like contributte/psr7-http-message
-    }
-
-    private function sendPsr7Response(ResponseInterface $response): void
-    {
-        // Convert PSR-7 response to Nette response and send it
-        // Example: use a bridge library like contributte/psr7-http-message
-    }
 }
 ```
 
@@ -443,54 +489,24 @@ class McpController
 }
 ```
 
-### Transport factories
+## Debugging
 
-The extension registers two transport factories by default:
+When Tracy debugger is enabled, a debug panel is automatically registered showing all registered tools, resources, resource templates, and prompts along with their handlers.
 
-1. **`stdio`** - STDIN/STDOUT transport for command-line usage
-2. **`streamable`** - HTTP streamable transport for web requests
+To inspect the MCP server configuration without processing actual MCP requests, add the `?debug=1` query parameter to your MCP endpoint URL:
 
-```php
-// Get stdio transport factory
-$stdioFactory = $mcpManager->getTransportFactory('stdio');
-
-// Get streamable transport factory
-$streamableFactory = $mcpManager->getTransportFactory('streamable');
+```
+https://your-app.com/mcp?debug=1
 ```
 
-### Custom transport factories
+This will return a simple text response and allow you to inspect the Tracy debug bar to see:
+- Number of registered tools, resources, templates, and prompts
+- Handler class and method for each registered item (e.g., `App\Mcp\CalculatorTool::add()`)
+- Tool descriptions and input schemas
+- Resource URIs and MIME types
+- Prompt arguments
 
-You can create custom transport factories by implementing `TransportFactoryInterface`:
-
-```php
-<?php declare(strict_types=1);
-
-namespace App\Mcp;
-
-use Contributte\Mcp\Http\TransportFactoryInterface;
-use Mcp\Server\Transport\TransportInterface;
-use Psr\Http\Message\ServerRequestInterface;
-
-final class CustomTransportFactory implements TransportFactoryInterface
-{
-    public function create(mixed ...$args): TransportInterface
-    {
-        return new MyCustomTransport();
-    }
-}
-```
-
-Register it in your configuration:
-
-```neon
-services:
-  mcp.transport.custom.factory:
-    factory: App\Mcp\CustomTransportFactory
-    tags: [contributte.mcp.transport_factory: custom]
-
-# Now you can use it
-# $factory = $mcpManager->getTransportFactory('custom');
-```
+![](./assets/mcp-tracy-panel.png)
 
 ## Examples
 
@@ -562,34 +578,44 @@ mcp:
 
 namespace App\Presenters;
 
+use Contributte\Mcp\Http\GuzzleBridge;
 use Contributte\Mcp\McpManager;
-use GuzzleHttp\Psr7\ServerRequest;
-use Nette\Application\UI\Presenter;
+use Nette\Application\IPresenter;
+use Nette\Application\Request as AppRequest;
+use Nette\Application\Response;
+use Nette\Http\IRequest;
 use Psr\Http\Message\ResponseInterface;
 
-final class McpPresenter extends Presenter
+class McpPresenter implements IPresenter
 {
+
     public function __construct(
-        private readonly McpManager $mcpManager
-    ) {
-        parent::__construct();
+        protected IRequest $httpRequest,
+        protected McpManager $mcpManager,
+    )
+    {
     }
 
-    public function actionDefault(): void
+    public function run(AppRequest $appRequest): Response
     {
-        // Nette request to PSR-7 request
-        $psr7Request = GuzzleBridge::createPsr7Request($this->getHttpRequest());
+        // Get server name from route parameters
+        $serverName = $appRequest->getParameter('server');
+        $serverName = is_string($serverName) ? $serverName : 'default';
+
+        // Convert Nette request to PSR-7 request
+        $serverRequest = GuzzleBridge::fromNette($this->httpRequest);
 
         // Create server and transport
-        $server = $this->mcpManager->getServerFactory('default')->create();
-        $transport = $this->mcpManager->getTransportFactory('streamable')->create($psr7Request);
+        $server = $this->mcpManager->getServerFactory($serverName)->create();
+        $transport = $this->mcpManager->getTransportFactory('streamable')->create($serverRequest);
 
         // Run server
-        $response = $server->run($transport);
+        $psr7Response = $server->run($transport);
+        assert($psr7Response instanceof ResponseInterface);
 
-        // PSR-7 response to Nette response
-        return GuzzleBridge::createNetteResponse($response);
+        return GuzzleBridge::toNette($psr7Response);
     }
+
 }
 ```
 

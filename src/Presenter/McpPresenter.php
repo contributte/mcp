@@ -4,9 +4,11 @@ namespace Contributte\Mcp\Presenter;
 
 use Contributte\Mcp\Http\GuzzleBridge;
 use Contributte\Mcp\McpManager;
+use Contributte\Mcp\Utils\McpUtils;
 use Nette\Application\IPresenter;
 use Nette\Application\Request as AppRequest;
 use Nette\Application\Response;
+use Nette\Application\Responses\TextResponse;
 use Nette\Http\IRequest;
 use Psr\Http\Message\ResponseInterface;
 
@@ -31,6 +33,11 @@ class McpPresenter implements IPresenter
 
 		// Create server and transport
 		$server = $this->mcpManager->getServerFactory($serverName)->create();
+
+		if (McpUtils::isDebug($appRequest->getParameter('debug'))) {
+			return new TextResponse('MCP debug mode, inspect Tracy.');
+		}
+
 		$transport = $this->mcpManager->getTransportFactory('streamable')->create($serverRequest);
 
 		// Run server
