@@ -506,7 +506,7 @@ This will return a simple text response and allow you to inspect the Tracy debug
 - Resource URIs and MIME types
 - Prompt arguments
 
-![](./assets/mcp-tracy-panel.png)
+![](./assets/panel.png)
 
 ## Examples
 
