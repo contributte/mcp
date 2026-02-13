@@ -43,7 +43,7 @@ class McpExtension extends CompilerExtension
 		$parameters = $this->getContainerBuilder()->parameters;
 
 		$expectService = Expect::anyOf(
-			Expect::string()->required()->assert(static fn ($input) => str_starts_with($input, '@') || class_exists($input) || interface_exists($input)),
+			Expect::string()->required()->assert(static fn ($input): bool => is_string($input) && (str_starts_with($input, '@') || class_exists($input) || interface_exists($input))),
 			Expect::type(Statement::class)->required(),
 		);
 
