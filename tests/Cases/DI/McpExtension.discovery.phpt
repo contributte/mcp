@@ -12,22 +12,15 @@ use Mcp\Server\Configuration;
 use Nette\DI\Compiler;
 use Tester\Assert;
 use Tests\Toolkit\ServerInspector;
-use Tests\Toolkit\Tests;
 
 require_once __DIR__ . '/../../bootstrap.php';
 require_once __DIR__ . '/../../Mocks/Mcp/CalculatorTool.php';
 require_once __DIR__ . '/../../Mocks/Mcp/FileResource.php';
 require_once __DIR__ . '/../../Mocks/Mcp/GreetingPrompt.php';
 
-function discoveryTempDir(string $name): string
-{
-	return Tests::TEMP_PATH . '/' . $name . '-' . getmypid() . '-' . bin2hex(random_bytes(4));
-}
-
 // Test discovery disabled (explicitly disabled, default is enabled)
 Toolkit::test(function (): void {
 	$container = ContainerBuilder::of()
-		->withTempDir(discoveryTempDir('mcp-discovery-disabled'))
 		->withCompiler(static function (Compiler $compiler): void {
 			$compiler->addExtension('mcp', new McpExtension());
 			$compiler->addConfig(Neonkit::load(<<<'NEON'
@@ -61,7 +54,6 @@ Toolkit::test(function (): void {
 // Test discovery enabled with custom scanDirs - discovers tools, resources, and prompts
 Toolkit::test(function (): void {
 	$container = ContainerBuilder::of()
-		->withTempDir(discoveryTempDir('mcp-discovery-enabled'))
 		->withCompiler(static function (Compiler $compiler): void {
 			$compiler->addExtension('mcp', new McpExtension());
 			$compiler->addConfig(Neonkit::load(<<<'NEON'
@@ -125,7 +117,6 @@ Toolkit::test(function (): void {
 	}
 
 	$container = ContainerBuilder::of()
-		->withTempDir(discoveryTempDir('mcp-discovery-cache'))
 		->withCompiler(static function (Compiler $compiler): void {
 			$compiler->addExtension('mcp', new McpExtension());
 			$compiler->addConfig(Neonkit::load(<<<'NEON'
