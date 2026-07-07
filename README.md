@@ -17,8 +17,6 @@
 Website 🚀 <a href="https://contributte.org">contributte.org</a> | Contact 👨🏻‍💻 <a href="https://f3l1x.io">f3l1x.io</a> | Twitter 🐦 <a href="https://twitter.com/contributte">@contributte</a>
 </p>
 
-# Contributte MCP
-
 Integration of [Model Context Protocol (MCP)](https://modelcontextprotocol.io) for Nette Framework.
 
 ## Versions
@@ -578,85 +576,7 @@ mcp:
           - src/Mcp/Internal
 ```
 
-### Example 3: Using in Nette Presenter
-
-```php
-<?php declare(strict_types=1);
-
-namespace App\Presenters;
-
-use Contributte\Mcp\Http\GuzzleBridge;
-use Contributte\Mcp\McpManager;
-use Nette\Application\IPresenter;
-use Nette\Application\Request as AppRequest;
-use Nette\Application\Response;
-use Nette\Http\IRequest;
-use Psr\Http\Message\ResponseInterface;
-
-class McpPresenter implements IPresenter
-{
-
-    public function __construct(
-        protected IRequest $httpRequest,
-        protected McpManager $mcpManager,
-    )
-    {
-    }
-
-    public function run(AppRequest $appRequest): Response
-    {
-        // Get server name from route parameters
-        $serverName = $appRequest->getParameter('server');
-        $serverName = is_string($serverName) ? $serverName : 'default';
-
-        // Convert Nette request to PSR-7 request
-        $serverRequest = GuzzleBridge::fromNette($this->httpRequest);
-
-        // Create server and transport
-        $server = $this->mcpManager->getServerFactory($serverName)->create();
-        $transport = $this->mcpManager->getTransportFactory('streamable')->create($serverRequest);
-
-        // Run server
-        $psr7Response = $server->run($transport);
-        assert($psr7Response instanceof ResponseInterface);
-
-        return GuzzleBridge::toNette($psr7Response);
-    }
-
-}
-```
-
-### Example 4: Using in PSR-7 Controller
-
-```php
-<?php declare(strict_types=1);
-
-namespace App\Controllers;
-
-use Contributte\Mcp\McpManager;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-
-final class McpController
-{
-    public function __construct(
-        private readonly McpManager $mcpManager
-    ) {
-    }
-
-    public function handle(ServerRequestInterface $request): ResponseInterface
-    {
-        // Create server and transport
-        $server = $this->mcpManager->getServerFactory('default')->create();
-        $transport = $this->mcpManager->getTransportFactory('streamable')->create($request);
-
-        // Run server and return PSR-7 response
-        return $server->run($transport);
-    }
-}
-```
-
-### Example 5: Pure PHP CLI Script
+### Example 3: Pure PHP CLI Script
 
 Create a standalone `mcp.php` script:
 
@@ -695,7 +615,7 @@ Run it:
 ./mcp.php
 ```
 
-### Example 6: Symfony Console Command
+### Example 4: Symfony Console Command
 
 The package provides a built-in Symfony console command `Contributte\Mcp\Console\McpCommand` for running MCP servers.
 
@@ -733,5 +653,5 @@ See [how to contribute](https://contributte.org) to this package. This package i
 
 -----
 
-Consider to [support](https://contributte.com/partners) **contributte** development team.
+Consider to [support](https://contributte.org/partners) **contributte** development team.
 Also thank you for using this package.
