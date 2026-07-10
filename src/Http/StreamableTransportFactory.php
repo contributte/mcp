@@ -49,7 +49,7 @@ final class StreamableTransportFactory implements TransportFactoryInterface
 	{
 		$middleware = StreamableHttpTransport::defaultMiddleware();
 
-		return array_filter($middleware, static fn($item) => !$item instanceof DnsRebindingProtectionMiddleware);
+		return array_values(array_filter($middleware, static fn($item) => !$item instanceof DnsRebindingProtectionMiddleware));
 	}
 
 }

@@ -34,9 +34,9 @@ use stdClass;
 class McpExtension extends CompilerExtension
 {
 
-	public const string SERVER_TAG = 'contributte.mcp.server';
-	public const string SERVER_FACTORY_TAG = 'contributte.mcp.server_factory';
-	public const string TRANSPORT_FACTORY_TAG = 'contributte.mcp.transport_factory';
+	public const SERVER_TAG = 'contributte.mcp.server';
+	public const SERVER_FACTORY_TAG = 'contributte.mcp.server_factory';
+	public const TRANSPORT_FACTORY_TAG = 'contributte.mcp.transport_factory';
 
 	public function getConfigSchema(): Schema
 	{

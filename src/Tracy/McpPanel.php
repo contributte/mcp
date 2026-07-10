@@ -34,7 +34,7 @@ final class McpPanel implements IBarPanel
 		ob_start();
 		require __DIR__ . '/templates/tab.phtml';
 
-		return (string) ob_get_clean();
+		return ob_get_clean();
 	}
 
 	public function getPanel(): string
@@ -52,7 +52,7 @@ final class McpPanel implements IBarPanel
 		ob_start();
 		require __DIR__ . '/templates/panel.phtml';
 
-		return (string) ob_get_clean();
+		return ob_get_clean();
 	}
 
 }
