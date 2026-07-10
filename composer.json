@@ -1,18 +1,13 @@
 {
   "name": "demmmmios/mcp",
-  "description": "Doctrine DBAL for Nette Framework",
+  "description": "MCP server for Nette Framework",
   "keywords": [
     "nette",
-    "doctrine",
-    "dbal",
-    "database",
-    "mysql",
-    "postgres",
-    "sqlite"
+    "mcp"
   ],
   "type": "library",
   "license": "MIT",
-  "homepage": "https://github.com/contributte/doctrine-dbal",
+  "homepage": "https://github.com/contributte/mcp",
   "authors": [
     {
       "name": "Milan Felix Šulc",
@@ -49,9 +44,6 @@
     "psr-4": {
       "Tests\\": "tests"
     }
-  },
-  "conflict": {
-    "nette/neon": "<3.4.5"
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
