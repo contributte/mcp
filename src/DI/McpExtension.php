@@ -55,6 +55,7 @@ class McpExtension extends CompilerExtension
 				Expect::structure([
 					'name' => Expect::string()->default('MCP'),
 					'version' => Expect::string()->default('1.0.0'),
+					'paginationLimit' => Expect::int(50),
 					'discovery' => Expect::structure([
 						'enabled' => Expect::bool(true),
 						'basePath' => Expect::string()->default($parameters['appDir'] ?? getcwd()),
@@ -152,6 +153,11 @@ class McpExtension extends CompilerExtension
 		$builderDef->addSetup('setServerInfo', [
 			$serverConfig->name,
 			$serverConfig->version,
+		]);
+
+		// Server:PaginationLimit
+		$builderDef->addSetup('setPaginationLimit', [
+			$serverConfig->paginationLimit,
 		]);
 
 		// Server:Container

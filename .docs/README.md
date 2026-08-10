@@ -60,6 +60,7 @@ mcp:
       # Server information
       name: <string>                    # Server name (default: 'MCP')
       version: <string>                 # Server version (default: '1.0.0')
+      paginationLimit: <int>             # Max items returned per page for list methods (default: 50)
 
       # Discovery configuration
       discovery:
