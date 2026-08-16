@@ -252,10 +252,9 @@ services:
   mcp.transport.custom.factory:
     factory: App\Mcp\CustomTransportFactory
     tags: [contributte.mcp.transport_factory: custom]
-
-# Now you can use it
-# $factory = $mcpManager->getTransportFactory('custom');
 ```
+
+You can now use `$mcpManager->getTransportFactory('custom')`.
 
 ## Tools, Resources, and Prompts
 
