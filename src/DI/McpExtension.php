@@ -59,8 +59,8 @@ class McpExtension extends CompilerExtension
 					'discovery' => Expect::structure([
 						'enabled' => Expect::bool(true),
 						'basePath' => Expect::string()->default($parameters['appDir'] ?? getcwd()),
-						'scanDirs' => Expect::arrayOf(Expect::string())->default(['.']),
-						'excludeDirs' => Expect::arrayOf(Expect::string())->default([]),
+						'scanDirs' => Expect::arrayOf(Expect::string())->default(['.'])->mergeDefaults(false),
+						'excludeDirs' => Expect::arrayOf(Expect::string())->default([])->mergeDefaults(false),
 						'cache' => Expect::anyOf($expectService, null)->default(null),
 					])->required(),
 					'session' => Expect::structure([
