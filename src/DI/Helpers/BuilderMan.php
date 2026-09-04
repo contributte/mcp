@@ -31,7 +31,11 @@ final class BuilderMan
 		$definitions = [];
 
 		foreach ($builder->findByTag($tag) as $serviceName => $tagValue) {
-			$definitions[(string) $tagValue] = $builder->getDefinition($serviceName);
+			if (!is_string($tagValue)) {
+				continue;
+			}
+
+			$definitions[$tagValue] = $builder->getDefinition($serviceName);
 		}
 
 		return $definitions;

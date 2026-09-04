@@ -17,7 +17,7 @@ use Mcp\Capability\Registry;
 use Mcp\Server\Builder;
 use Mcp\Server\Session\FileSessionStore;
 use Mcp\Server\Session\InMemorySessionStore;
-use Mcp\Server\Session\Psr16StoreSession;
+use Mcp\Server\Session\Psr16SessionStore;
 use Nette\Application\IPresenterFactory;
 use Nette\DI\CompilerExtension;
 use Nette\DI\Definitions\ServiceDefinition;
@@ -34,9 +34,9 @@ use stdClass;
 class McpExtension extends CompilerExtension
 {
 
-	public const string SERVER_TAG = 'contributte.mcp.server';
-	public const string SERVER_FACTORY_TAG = 'contributte.mcp.server_factory';
-	public const string TRANSPORT_FACTORY_TAG = 'contributte.mcp.transport_factory';
+	public const SERVER_TAG = 'contributte.mcp.server';
+	public const SERVER_FACTORY_TAG = 'contributte.mcp.server_factory';
+	public const TRANSPORT_FACTORY_TAG = 'contributte.mcp.transport_factory';
 
 	public function getConfigSchema(): Schema
 	{
@@ -55,11 +55,12 @@ class McpExtension extends CompilerExtension
 				Expect::structure([
 					'name' => Expect::string()->default('MCP'),
 					'version' => Expect::string()->default('1.0.0'),
+					'paginationLimit' => Expect::int(50),
 					'discovery' => Expect::structure([
 						'enabled' => Expect::bool(true),
 						'basePath' => Expect::string()->default($parameters['appDir'] ?? getcwd()),
-						'scanDirs' => Expect::arrayOf(Expect::string())->default(['.']),
-						'excludeDirs' => Expect::arrayOf(Expect::string())->default([]),
+						'scanDirs' => Expect::arrayOf(Expect::string())->default(['.'])->mergeDefaults(false),
+						'excludeDirs' => Expect::arrayOf(Expect::string())->default([])->mergeDefaults(false),
 						'cache' => Expect::anyOf($expectService, null)->default(null),
 					])->required(),
 					'session' => Expect::structure([
@@ -154,6 +155,11 @@ class McpExtension extends CompilerExtension
 			$serverConfig->version,
 		]);
 
+		// Server:PaginationLimit
+		$builderDef->addSetup('setPaginationLimit', [
+			$serverConfig->paginationLimit,
+		]);
+
 		// Server:Container
 		if ($serverConfig->container === null) {
 			$builderDef->addSetup('setContainer', [new Statement(NetteContainer::class, ['@container'])]);
@@ -178,7 +184,8 @@ class McpExtension extends CompilerExtension
 		// Server:Session
 		switch ($serverConfig->session->type) {
 			case 'file':
-				$path = $serverConfig->session->path ?? (isset($builder->parameters['tempDir']) ? $builder->parameters['tempDir'] . '/mcp' : null);
+				$tempDir = $builder->parameters['tempDir'] ?? null;
+				$path = $serverConfig->session->path ?? (is_string($tempDir) ? $tempDir . '/mcp' : null);
 				if ($path === null) {
 					throw new LogicalException(
 						sprintf('Session path must be configured for file sessions (server "%s"). Either set session.path or ensure %%tempDir%% is available.', $serverName)
@@ -198,7 +205,7 @@ class McpExtension extends CompilerExtension
 				}
 
 				$cacheService = BuilderMan::of($this)->resolveService($serverConfig->session->cache);
-				$sessionStore = new Statement(Psr16StoreSession::class, [$cacheService, $serverConfig->session->prefix, $serverConfig->session->ttl]);
+				$sessionStore = new Statement(Psr16SessionStore::class, [$cacheService, $serverConfig->session->prefix, $serverConfig->session->ttl]);
 				break;
 			default:
 				$sessionStore = null;

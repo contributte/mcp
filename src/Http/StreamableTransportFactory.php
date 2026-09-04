@@ -3,11 +3,13 @@
 namespace Contributte\Mcp\Http;
 
 use Contributte\Mcp\Exception\LogicalException;
+use Mcp\Server\Transport\Http\Middleware\DnsRebindingProtectionMiddleware;
 use Mcp\Server\Transport\StreamableHttpTransport;
 use Mcp\Server\Transport\TransportInterface;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Psr\Log\LoggerInterface;
 
 final class StreamableTransportFactory implements TransportFactoryInterface
@@ -36,9 +38,19 @@ final class StreamableTransportFactory implements TransportFactoryInterface
 			$serverRequest,
 			$this->responseFactory,
 			$this->streamFactory,
-			[],
 			$this->logger,
+			$this->createMiddleware(),
 		);
+	}
+
+	/**
+	 * @return list<MiddlewareInterface>
+	 */
+	private function createMiddleware(): array
+	{
+		$middleware = StreamableHttpTransport::defaultMiddleware();
+
+		return array_values(array_filter($middleware, static fn ($item) => !$item instanceof DnsRebindingProtectionMiddleware));
 	}
 
 }

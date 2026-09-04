@@ -4,7 +4,7 @@ namespace Tests\Toolkit;
 
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Prompt;
-use Mcp\Schema\Resource;
+use Mcp\Schema\ResourceDefinition;
 use Mcp\Schema\Tool;
 use Mcp\Server;
 use Mcp\Server\Configuration;
@@ -43,7 +43,7 @@ final class ServerInspector
 	}
 
 	/**
-	 * @return array<string, Resource>
+	 * @return array<string, ResourceDefinition>
 	 */
 	public static function getResources(Server $server): array
 	{

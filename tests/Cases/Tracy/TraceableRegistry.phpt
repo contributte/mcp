@@ -71,6 +71,7 @@ Toolkit::test(function (): void {
 
 	$tool = new Tool(
 		name: 'test-tool',
+		title: null,
 		inputSchema: ['type' => 'object', 'properties' => [], 'required' => []],
 		description: 'A test tool',
 		annotations: null,
