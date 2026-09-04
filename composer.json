@@ -16,11 +16,11 @@
   ],
   "require": {
     "php": ">=8.2",
-    "guzzlehttp/guzzle": "^7.10.0",
+    "guzzlehttp/guzzle": "^7.0 || ^8.0",
     "psr/container": "^1.0 || ^2.0",
     "psr/cache": "^1.0 || ^2.0 || ^3.0",
     "psr/simple-cache": "^2.0 || ^3.0",
-    "mcp/sdk": "^0.7.0"
+    "mcp/sdk": "^0.8.1"
   },
   "require-dev": {
     "ext-pdo": "*",
