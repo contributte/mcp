@@ -2,6 +2,7 @@
 
 namespace Contributte\Mcp\DI\Helpers;
 
+use Contributte\Mcp\Exception\LogicalException;
 use Nette\DI\CompilerExtension;
 use Nette\DI\Definitions\Definition;
 use Nette\DI\Definitions\Reference;
@@ -31,6 +32,10 @@ final class BuilderMan
 		$definitions = [];
 
 		foreach ($builder->findByTag($tag) as $serviceName => $tagValue) {
+			if (!is_string($tagValue) && !is_int($tagValue)) {
+				throw new LogicalException(sprintf('Tag "%s" of service "%s" must have a string value', $tag, $serviceName));
+			}
+
 			$definitions[(string) $tagValue] = $builder->getDefinition($serviceName);
 		}
 
