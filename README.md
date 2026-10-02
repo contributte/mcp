@@ -31,9 +31,10 @@ For details on how to use this package, check out our [documentation](.docs).
 
 ## Versions
 
-| State       | Version | Branch   | Nette  | PHP     |
-|-------------|---------|----------|--------|---------|
-| dev         | `^0.1`  | `master` | `3.2+` | `>=8.4` |
+| State       | Version | Branch   | mcp/sdk    | Nette  | PHP     |
+|-------------|---------|----------|------------|--------|---------|
+| dev         | `^0.3`  | `master` | `^0.8`     | `3.2+` | `>=8.4` |
+| stable      | `^0.2`  | `master` | `dev-main` | `3.2+` | `>=8.4` |
 
 ## Development
 
