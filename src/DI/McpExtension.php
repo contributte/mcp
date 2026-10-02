@@ -178,7 +178,8 @@ class McpExtension extends CompilerExtension
 		// Server:Session
 		switch ($serverConfig->session->type) {
 			case 'file':
-				$path = $serverConfig->session->path ?? (isset($builder->parameters['tempDir']) ? $builder->parameters['tempDir'] . '/mcp' : null);
+				$tempDir = $builder->parameters['tempDir'] ?? null;
+				$path = $serverConfig->session->path ?? (is_string($tempDir) ? $tempDir . '/mcp' : null);
 				if ($path === null) {
 					throw new LogicalException(
 						sprintf('Session path must be configured for file sessions (server "%s"). Either set session.path or ensure %%tempDir%% is available.', $serverName)
