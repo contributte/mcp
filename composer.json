@@ -1,18 +1,17 @@
 {
   "name": "contributte/mcp",
-  "description": "Doctrine DBAL for Nette Framework",
+  "description": "Model Context Protocol (MCP) server integration for Nette Framework",
   "keywords": [
     "nette",
-    "doctrine",
-    "dbal",
-    "database",
-    "mysql",
-    "postgres",
-    "sqlite"
+    "mcp",
+    "model-context-protocol",
+    "ai",
+    "llm",
+    "server"
   ],
   "type": "library",
   "license": "MIT",
-  "homepage": "https://github.com/contributte/doctrine-dbal",
+  "homepage": "https://github.com/contributte/mcp",
   "authors": [
     {
       "name": "Milan Felix Šulc",
