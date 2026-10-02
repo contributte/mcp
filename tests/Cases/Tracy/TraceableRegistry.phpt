@@ -5,6 +5,7 @@ namespace Tests\Cases\Tracy;
 use Contributte\Mcp\Registry\TraceableRegistry;
 use Contributte\Tester\Toolkit;
 use Mcp\Capability\Registry;
+use Mcp\Capability\Registry\ToolReference;
 use Mcp\Capability\RegistryInterface;
 use Mcp\Schema\Page;
 use Mcp\Schema\Tool;
@@ -71,14 +72,24 @@ Toolkit::test(function (): void {
 
 	$tool = new Tool(
 		name: 'test-tool',
+		title: null,
 		inputSchema: ['type' => 'object', 'properties' => [], 'required' => []],
 		description: 'A test tool',
 		annotations: null,
 	);
-	$traceableRegistry->registerTool($tool, fn () => 'result');
+	$reference = $traceableRegistry->registerTool($tool, fn () => 'result');
 
+	Assert::type(ToolReference::class, $reference);
+	Assert::same($tool, $reference->tool);
 	Assert::true($traceableRegistry->hasTools());
 	Assert::true($innerRegistry->hasTools());
+	Assert::true($traceableRegistry->hasTool('test-tool'));
+	Assert::false($traceableRegistry->hasTool('missing-tool'));
+
+	$traceableRegistry->unregisterTool('test-tool');
+
+	Assert::false($traceableRegistry->hasTool('test-tool'));
+	Assert::false($innerRegistry->hasTool('test-tool'));
 });
 
 // Test: TraceableRegistry accumulates multiple calls
