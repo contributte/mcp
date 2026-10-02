@@ -22,7 +22,7 @@ final class GuzzleBridge
 
 		$headers = [];
 		foreach ($netteRequest->getHeaders() as $name => $value) {
-			$headers[$name] = is_array($value) ? $value : [$value];
+			$headers[$name] = [$value];
 		}
 
 		$body = $netteRequest->getRawBody();
