@@ -24,7 +24,7 @@
     "psr/container": "^2.0.2",
     "psr/cache": "^3.0.0",
     "psr/simple-cache": "^3.0.0",
-    "mcp/sdk": "dev-main#369932378f7bcfa29a00efc1530b70c4d501a24b"
+    "mcp/sdk": "^0.8.1"
   },
   "require-dev": {
     "ext-pdo": "*",

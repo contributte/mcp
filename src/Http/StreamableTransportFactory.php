@@ -36,7 +36,6 @@ final class StreamableTransportFactory implements TransportFactoryInterface
 			$serverRequest,
 			$this->responseFactory,
 			$this->streamFactory,
-			[],
 			$this->logger,
 		);
 	}

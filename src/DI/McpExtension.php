@@ -17,7 +17,7 @@ use Mcp\Capability\Registry;
 use Mcp\Server\Builder;
 use Mcp\Server\Session\FileSessionStore;
 use Mcp\Server\Session\InMemorySessionStore;
-use Mcp\Server\Session\Psr16StoreSession;
+use Mcp\Server\Session\Psr16SessionStore;
 use Nette\Application\IPresenterFactory;
 use Nette\DI\CompilerExtension;
 use Nette\DI\Definitions\ServiceDefinition;
@@ -198,7 +198,7 @@ class McpExtension extends CompilerExtension
 				}
 
 				$cacheService = BuilderMan::of($this)->resolveService($serverConfig->session->cache);
-				$sessionStore = new Statement(Psr16StoreSession::class, [$cacheService, $serverConfig->session->prefix, $serverConfig->session->ttl]);
+				$sessionStore = new Statement(Psr16SessionStore::class, [$cacheService, $serverConfig->session->prefix, $serverConfig->session->ttl]);
 				break;
 			default:
 				$sessionStore = null;
