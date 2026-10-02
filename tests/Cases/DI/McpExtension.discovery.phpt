@@ -14,6 +14,9 @@ use Tester\Assert;
 use Tests\Toolkit\ServerInspector;
 
 require_once __DIR__ . '/../../bootstrap.php';
+require_once __DIR__ . '/../../Mocks/Mcp/CalculatorTool.php';
+require_once __DIR__ . '/../../Mocks/Mcp/FileResource.php';
+require_once __DIR__ . '/../../Mocks/Mcp/GreetingPrompt.php';
 
 // Test discovery disabled (explicitly disabled, default is enabled)
 Toolkit::test(function (): void {
